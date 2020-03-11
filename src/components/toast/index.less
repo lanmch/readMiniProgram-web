@@ -1,0 +1,26 @@
+@keyframes fade-in {  
+    0% {opacity: 0;}/*初始状态 透明度为0*/  
+    33% {opacity: 0.1;}/*过渡状态 透明度为0*/  
+    66% {opacity: 0.2;}/*结束状态 透明度为1*/  
+    99% {opacity: 0.3;}
+}  
+.toast{
+    
+    .text{
+        font-size: 24px;
+        font-family: 'SimHei';
+        text-align: center;
+        max-width: 400rpx;
+        border-radius: 10rpx;
+        padding: 25rpx 40rpx;
+        background-color: rgb(43, 42, 42);
+        opacity: 0.3;
+        color: #fff;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation: fade-in;/*动画名称*/  
+        animation-duration: 0.1s;/*动画持续时间*/  
+    }
+}

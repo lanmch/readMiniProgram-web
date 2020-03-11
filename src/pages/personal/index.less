@@ -1,0 +1,62 @@
+.personal{
+    height: 100vh;
+    width: 100%;
+    position: relative;
+    background-color: #f4f4f4;
+    .head{
+        height: 350rpx;
+        background: url('./img/background.png') no-repeat;
+        background-size: 100% 100%;
+        filter: blur(3px);
+        position: relative;
+        overflow: hidden;
+        .circle-back{
+            width: 1500rpx;
+            height: 1500rpx;
+            border-radius: 50%;
+            background-color: #fff;
+            position: absolute;
+            top: 200rpx;
+            left: -375rpx;
+        }
+        
+    }
+    .user{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: absolute;
+        top: 150rpx;
+        left: 50%;
+        transform: translate(-50%);
+        .user-head{
+            width: 120rpx;
+            height: 120rpx;
+            border-radius: 50%;
+        }
+        .user-name{
+            margin-top: 15rpx;
+            font-family: 'SimHei';
+        }
+    }
+    .other{
+        padding: 0 50rpx;
+        font-family: 'SimHei';
+        font-size: 26px;
+        .item{
+            margin-top: 30rpx;
+            display: flex;
+            align-items: center;
+            height: 70rpx;
+            line-height: 70rpx;
+            padding: 0 30rpx;
+            background-color: #fff;
+            border-radius: 12rpx;
+            .icon{
+                width: 40rpx;
+                height: 40rpx;
+                margin-right: 20rpx;
+            }
+        }
+    }
+}

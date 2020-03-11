@@ -1,0 +1,127 @@
+.homepage{
+    font-family: 'SimHei';
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    .input{
+        padding: 20rpx 80rpx;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        .input-zone{
+            border: 1px solid #3f72af;
+            padding: 5px 10px;
+            border-radius: 8rpx;
+            width: 450rpx;
+            font-size: 24px;
+        }
+        .btn{
+            background-color: #3f72af;
+            color: #fff;
+            font-size: 20px;
+            margin: 0;
+        }
+    }
+    .tab{
+        overflow: hidden;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        .tab-head{
+            height: 80rpx;
+            line-height: 80rpx;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            .tab-head-item{
+                color: #000;
+            }
+            .tab-head-item-choose{
+                color: #112d4e;
+                font-weight: bold;
+                font-size: 34px;
+                border-bottom: 5px solid #112d4e;
+            }
+        }
+        .tab-content{
+            padding: 50rpx;
+            flex: 1;
+            overflow: scroll;
+            .first{
+                display: flex;
+                .img{
+                    width: 120rpx;
+                }
+                .text{
+                    margin-left: 30rpx;
+                    .text-top{
+                        display: flex;
+                        align-items: center;
+                        .title{
+                            font-size: 30px;
+                        }
+                        .type{
+                            font-size: 22px;
+                            color: #3f72af;
+                            border: 1px solid #3f72af;
+                            border-radius: 5rpx;
+                            text-align: center;
+                            padding: 5rpx;
+                            margin-left: 20rpx;
+                        }
+                    }
+                    .text-btm{
+                        font-size: 26px;
+                        color: rgb(82, 81, 81);
+                        margin-top: 10rpx;
+                        width: 500rpx;
+                        height: 130rpx;
+                    }
+                }
+            }
+            .others{
+                .others-item{
+                    display: flex;
+                    align-items: center;
+                    margin-top: 30rpx;
+                    .title{
+                        font-size: 30px;
+                        margin-left: 20rpx;
+                    }
+                    .type{
+                        font-size: 24px;
+                        color: #3f72af;
+                        border: 1px solid #3f72af;
+                        border-radius: 5rpx;
+                        text-align: center;
+                        padding: 5rpx;
+                    }
+                }
+            }
+        }
+        .tab-rank{
+            display: flex;
+            margin-top: 20rpx;
+            overflow: scroll;
+            .rank-type{
+                display: flex;
+                flex-direction: column;
+                .item{
+                    width: 105rpx;
+                    height: 80rpx;
+                    text-align: center;
+                    line-height: 80rpx;
+                    font-size: 22px;
+                }
+                .item-choose{
+                    color: #112d4e;
+                    border-left: 5rpx solid #112d4e;
+                    width: 95rpx;
+                }
+            }
+            .rank-content{
+                overflow: scroll;
+            }
+        }
+    }
+}
