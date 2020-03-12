@@ -3,8 +3,11 @@ import { View } from '@tarojs/components'
 import { ComponentClass } from 'react'
 import { Component } from '@tarojs/taro'
 
-
+import { connect } from '@tarojs/redux';
+import { getDirectory } from '../../actions/directory'
+import { getArticleDetail } from '../../actions/articleDetail'
 import './index.less'
+import Toast from '../../components/toast/index';
 
 type PageState = {
     bookDetail: {
@@ -14,9 +17,16 @@ type PageState = {
     },
     articleDetail: any,
     directory: any,
-    ifShowDirectory: boolean
+    ifShowDirectory: boolean,
+    sectionIndex: number,
+    ifShowToast: boolean,
+    toastText: string,
 }
-type PageProps = {}
+type PageProps = {
+    directory: any,
+    dispatch: any,
+    articleDetail: any
+}
 
 
 interface BookDetail {
@@ -24,7 +34,8 @@ interface BookDetail {
     state: PageState
 }
 
-
+const url = Taro.getApp().global.url;
+const userId =  Taro.getApp().global.userId;
 class BookDetail extends Component {
     static defaultProps = {}
     constructor(props) {
@@ -37,72 +48,187 @@ class BookDetail extends Component {
             },
             articleDetail: [],
             directory: ['第一个系统登场', '欧神系统开始工作', '花花'],
-            ifShowDirectory: false
+            ifShowDirectory: false,
+            sectionIndex: 1,
+            ifShowToast: false,
+            toastText: '',
         }
     }
     componentDidMount() {
-        this.formatArticle();
+        this.viewBook();
+        this.getDirectory();
+        this.getAriticle(this.state.sectionIndex);
     }
-    formatArticle() {
-        let article = this.state.bookDetail.articleDetail;
-        let articleDetail = article.split('\n');
-        this.setState({
-            articleDetail
+    viewBook() {
+        Taro.request({
+            url: url + '/viewbook',
+            method: 'POST',
+            data: {
+                bookId: this.$router.params.bookId,
+                userId,
+                sectionId: 1
+            },
+            header: {
+                'content-type': 'application/json'
+            },
+            success: () => {
+            }
         })
+    }
+    getDirectory() {
+        Taro.request({
+            url: url + '/directory',
+            method: 'POST',
+            data: {
+                bookId: this.$router.params.bookId,
+            },
+            header: {
+                'content-type': 'application/json'
+            },
+            success: (res) => {
+                const { dispatch } = this.props;
+                dispatch(getDirectory(res.data.data.directoryList))
+            }
+        })
+    }
+    getAriticle(sectionIndex) {
+        Taro.request({
+            url: url + '/bookdetail',
+            method: 'POST',
+            data: {
+                bookId: this.$router.params.bookId,
+                sectionIndex
+            },
+            header: {
+                'content-type': 'application/json'
+            },
+            success: (res) => {
+                const { dispatch } = this.props;
+                dispatch(getArticleDetail(res.data.data.bookDetail[0]))
+            }
+        })
+    }
+    formatArticle(content) {
+        return content.split('\n');
+        
     }
     goDirectory() {
         this.setState({
             ifShowDirectory: true
         })
     }
-    navOtherSection() {
+    navOtherSection(item) {
+        this.getAriticle(item.sectionIndex);
+        Taro.pageScrollTo({scrollTop: 0});
         this.setState({
-            ifShowDirectory: false
+            ifShowDirectory: false,
+            sectionIndex: item.sectionIndex
         })
     }
+    preArticle() {
+        if(this.state.sectionIndex > 1) {
+            this.getAriticle(this.state.sectionIndex - 1);
+            Taro.pageScrollTo({scrollTop: 0});
+            this.setState({
+                ifShowDirectory: false,
+                sectionIndex: this.state.sectionIndex - 1
+            })
+        } else {
+            var that = this;
+            that.setState({
+                ifShowToast: true,
+                toastText: '已经是第一页啦~'
+            }, function() {
+                setTimeout(function() {
+                    that.setState({
+                        ifShowToast: false
+                    })
+                }, 1000)
+            })
+        }
+        
+    }
+    nextArticle() {
+        if(this.state.sectionIndex < this.props.directory.directoryList.length) {
+            this.getAriticle(this.state.sectionIndex + 1);
+            Taro.pageScrollTo({scrollTop: 0});
+            this.setState({
+                ifShowDirectory: false,
+                sectionIndex: this.state.sectionIndex + 1
+            })
+        } else {
+            var that = this;
+            that.setState({
+                ifShowToast: true,
+                toastText: '已经是最后一页啦~'
+            }, function() {
+                setTimeout(function() {
+                    that.setState({
+                        ifShowToast: false
+                    })
+                }, 1000)
+            })
+        }
+        
+    }
     render () {
-        const { bookDetail, articleDetail, directory, ifShowDirectory } = this.state;
+        const { ifShowDirectory, sectionIndex, ifShowToast, toastText } = this.state;
+        const { articleDetail, directory } = this.props;
+        const { directoryList } = directory;
+        const { detail } = articleDetail;
+        if(!detail || !directoryList) return;
+        let content = this.formatArticle(detail.sectionContent);
         return (
             <View className='book-detail'>
                 <View className='title'>
-                    <View>第{ bookDetail.index + 1 }章</View><View className='title-detail'>{ bookDetail.section }</View>
+                    <View>第{ detail.sectionId }章</View><View className='title-detail'>{ detail.sectionName }</View>
                 </View>
                 <View className='detail' >
                     {
-                        articleDetail.map((item, index) => {
+                        content.map((item, index) => {
                             return <View className='paragraph' key={index}>{ item }</View>
                         })
                     }
                 </View>
                 <View className='btn-zone'>
-                    <View className='btn'>上一章</View>
+                    <View className='btn' onClick={this.preArticle.bind(this)}>上一章</View>
                     <View className='btn' onClick={this.goDirectory.bind(this)}>目录</View>
-                    <View className='btn'>下一章</View>
+                    <View className='btn' onClick={this.$componentType.nextArticle.bind(this)}>下一章</View>
                 </View>
                 {/* 目录 */}
                 {
                     ifShowDirectory ? 
                     <View className='directory'>
                     {
-                        directory.map((item, index) => {
+                        directoryList.map((item, index) => {
                             return(
                                 <View
                                   key={index}
-                                  className={bookDetail.index == index ? 'directory-item choose' : 'directory-item'}
-                                  onClick={this.navOtherSection.bind(this)}
+                                  className={sectionIndex == item.sectionIndex ? 'directory-item choose' : 'directory-item'}
+                                  onClick={this.navOtherSection.bind(this, item)}
                                 >
-                                    第{index+1}章 {'  '+ item}
+                                    第{item.sectionIndex}章 {'  '+ item.sectionName}
                                 </View>
                             )
                         })
                     }
                     </View> : null
                 }
-                
+                {
+                    ifShowToast ? <Toast toastText={toastText} /> : null
+                }
             </View>
         )
       }
 }
 
-export default BookDetail as ComponentClass;
+// export default BookDetail as ComponentClass;
+
+const mapStateToProps = (state) => {
+    return {
+        directory: state.directory,
+        articleDetail: state.articleDetail
+    }
+};
+export default connect(mapStateToProps)(BookDetail) as ComponentClass
 

@@ -9,7 +9,12 @@ import './index.less'
 
 type PageState = {
     ifShowToast: boolean,
-    toastText: string
+    toastText: string,
+    userInfo: {
+        img: string,
+        userId: number,
+        userName: string
+    }
 }
 type PageProps = {}
 
@@ -19,18 +24,38 @@ interface Personal {
     state: PageState
 }
 
-
+const url = Taro.getApp().global.url;
+const userId =  Taro.getApp().global.userId;
 class Personal extends Component {
     static defaultProps = {}
     constructor(props) {
         super(props);
         this.state = {
             ifShowToast: false,
-            toastText: ''
+            toastText: '',
+            userInfo: {}
         }
     }
     config: Config = {
         navigationBarTitleText: '我的'
+    }
+    componentDidMount() {
+        Taro.request({
+            url: url + '/userinfo',
+            method: 'POST',
+            data: {
+                userId
+            },
+            header: {
+                'content-type': 'application/json'
+            },
+            success: (res) => {
+                this.setState({
+                    userInfo: res.data.data.userInfo
+                })
+            }
+        })
+
     }
     getVersion() {
         var that = this;
@@ -52,7 +77,7 @@ class Personal extends Component {
         Taro.navigateTo({ url: '/pages/viewHistory/index' })
     }
     render () {
-        const { ifShowToast, toastText } = this.state
+        const { ifShowToast, toastText, userInfo } = this.state
         return (
             <View className='personal'>
                 
@@ -64,9 +89,9 @@ class Personal extends Component {
                     <Image
                       mode='widthFix'
                       className='user-head'
-                      src='https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=1873588884,3781931310&fm=11&gp=0.jpg' />
+                      src={userInfo.img} />
                     <View className='user-name'>
-                        LanMch
+                        { userInfo.userName }
                     </View>
                 </View>
                 <View className='other'>

@@ -23,11 +23,16 @@
                 font-size: 30px;
             }
             .abs{
-                height: 140rpx;
                 margin-top: 20rpx;
                 font-size: 26px;
                 color: rgb(63, 63, 63);
-                overflow: hidden;
+                text-overflow:ellipsis;
+                display: -webkit-box;
+                word-break: break-all;
+                display:-webkit-box;
+                overflow:hidden;
+                -webkit-line-clamp:4;   /*设置要显示省略号的行数*/
+                -webkit-box-orient:vertical;
             }
         }
     }

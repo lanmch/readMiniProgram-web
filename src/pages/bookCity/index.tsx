@@ -2,19 +2,26 @@
 import { View, Image } from '@tarojs/components'
 import { ComponentClass } from 'react'
 import { Component, Config } from '@tarojs/taro'
-
-
+import { getCollectList } from '../../actions/collectList'
 import './index.less'
 
 type book = {
-    img: string,
-    title: string
+    bookId: number,
+    bookAbstract: string,
+    bookName: string,
+    createTime: any,
+    type: number,
+    view: number,
+    img: string
 }
 type PageState = {
 
     bookList: Array<book>
 }
-type PageProps = {}
+type PageProps = {
+    dispatch: any,
+    collectList: any
+}
 
 
 interface BookCity {
@@ -22,54 +29,42 @@ interface BookCity {
     state: PageState
 }
 
-
+const url = Taro.getApp().global.url;
+const userId =  Taro.getApp().global.userId;
 class BookCity extends Component {
     static defaultProps = {}
     constructor(props) {
         super(props);
         this.state = {
-            bookList: [{
-                img: 'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=2981812900,1602556750&fm=11&gp=0.jpg',
-                title: '终南山传'
-            }, {
-                img: 'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1888528990,2875539793&fm=11&gp=0.jpg',
-                title: '语文'
-            }, {
-                img: 'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=226849410,1799589538&fm=11&gp=0.jpg',
-                title: '超级记忆训练法'
-            }, {
-                img: 'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3136869622,3597133951&fm=11&gp=0.jpg',
-                title: '定位营销学'
-            },{
-                img: 'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=2981812900,1602556750&fm=11&gp=0.jpg',
-                title: '终南山传'
-            }, {
-                img: 'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1888528990,2875539793&fm=11&gp=0.jpg',
-                title: '语文'
-            }, {
-                img: 'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=226849410,1799589538&fm=11&gp=0.jpg',
-                title: '超级记忆训练法'
-            }, {
-                img: 'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3136869622,3597133951&fm=11&gp=0.jpg',
-                title: '定位营销学'
-            },{
-                img: 'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=2981812900,1602556750&fm=11&gp=0.jpg',
-                title: '终南山传'
-            }, {
-                img: 'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1888528990,2875539793&fm=11&gp=0.jpg',
-                title: '语文'
-            }, {
-                img: 'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=226849410,1799589538&fm=11&gp=0.jpg',
-                title: '超级记忆训练法'
-            }, {
-                img: 'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3136869622,3597133951&fm=11&gp=0.jpg',
-                title: '定位营销学'
-            }]
+            bookList: []
 
         }
     }
     config: Config = {
         navigationBarTitleText: '书架'
+    }
+    componentDidMount() {
+        this.getCollectList(userId);
+    }
+    getCollectList(userId) {
+        Taro.request({
+            url: url + '/collectlist',
+            method: 'POST',
+            data: {
+                userId
+            },
+            header: {
+                'content-type': 'application/json'
+            },
+            success: (res) => {
+                this.setState({
+                    bookList: res.data.data.collectList
+                })
+            }
+        })
+    }
+    navBook(bookId) {
+        Taro.navigateTo({ url: `/pages/bookIntroduce/index?bookId=${bookId}` })
     }
     render () {
         const { bookList } = this.state;
@@ -81,6 +76,7 @@ class BookCity extends Component {
                     bookList.map((item, index) => {
                         return (
                             <Image
+                              onClick={this.navBook.bind(this, item.bookId)}
                               mode='widthFix'
                               className='img'
                               key={index}

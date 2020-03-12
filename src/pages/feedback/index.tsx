@@ -6,7 +6,10 @@ import { Component } from '@tarojs/taro'
 
 import './index.less'
 
-type PageState = {}
+type PageState = {
+    title: string,
+    content: string
+}
 type PageProps = {}
 
 
@@ -21,15 +24,31 @@ class Feedback extends Component {
     constructor(props) {
         super(props);
         this.state = {
-
+            title: '',
+            content: ''
         }
     }
+    inputChange(e) {
+        this.setState({
+            title: e.detail.value
+        })
+    }
+    areaChange(e) {
+        this.setState({
+            content:  e.detail.value
+        })
+        console.log(e)
+    }
+    submit() {
+        console.log(this.state)
+    }
     render () {
+        const { title, content } = this.state
         return (
           <View className='feedback'>
-              <Input placeholder='请输入反馈标题' className='input' />
-              <Textarea placeholder='请输入反馈内容' value="" className='textarea' />
-              <View className='btn'>提交反馈</View>
+              <Input placeholder='请输入反馈标题' className='input' value={title} onChange={this.inputChange.bind(this)}/>
+              <Textarea placeholder='请输入反馈内容' className='textarea' value={content} onChange={this.areaChange.bind(this)}/>
+              <View className='btn' onClick={this.submit.bind(this)}>提交反馈</View>
           </View>
         )
       }

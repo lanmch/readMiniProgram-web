@@ -5,8 +5,8 @@ import { Component, Config } from '@tarojs/taro'
 
 
 import './index.less'
-import { type } from 'os';
-
+import { connect } from '@tarojs/redux';
+import { getViewHistory } from '../../actions/viewHistory';
 type book = {
     title: string,
     abstract: string,
@@ -17,15 +17,18 @@ type book = {
 type PageState = {
     historyList: Array<book>
 }
-type PageProps = {}
+type PageProps = {
+    viewHistory: any,
+    dispatch: any
+}
 
 
 interface ViewHistory {
     props: PageProps,
     state: PageState
 }
-
-
+const url = Taro.getApp().global.url;
+const userId =  Taro.getApp().global.userId;
 class ViewHistory extends Component {
     static defaultProps = {}
     constructor(props) {
@@ -82,18 +85,42 @@ class ViewHistory extends Component {
     config: Config = {
         navigationBarTitleText: '浏览历史'
     }
+    componentDidMount() {
+        this.getHistoryList(userId);
+    }
+    getHistoryList(userId) {
+        Taro.request({
+            url: url + '/viewhistory',
+            method: 'POST',
+            data: {
+                userId
+            },
+            header: {
+                'content-type': 'application/json'
+            },
+            success: (res) => {
+                const { dispatch } = this.props;
+                dispatch(getViewHistory(res.data.data.historyList))
+            }
+        })
+    }
+    navBook(bookId) {
+        Taro.navigateTo({ url: `/pages/bookIntroduce/index?bookId=${bookId}` })
+    }
     render () {
-        const { historyList } = this.state
+        const { viewHistory } = this.props;
+        const { list } = viewHistory
+        if(!list) return;
         return (
             <View className='view-history'>
             {
-                historyList.map((item, index) => {
+                list.map((item, index) => {
                     return (
-                        <View className='view-history-item' key={index}>
+                        <View className='view-history-item' key={index} onClick={this.navBook.bind(this, item.bookId)}>
                             <Image src={item.img} mode='widthFix' className='img' />
                             <View className='text'>
-                                <View className='title'>{ item.title }</View>
-                                <View className='abs'>{ item.abstract }</View>
+                                <View className='title'>{ item.bookName }</View>
+                                <View className='abs' style={{"WebkitBoxOrient": "vertical", "WebkitLineClamp": 4}}>{ item.bookAbstract }</View>
                             </View>
                         </View>
                     )
@@ -105,5 +132,11 @@ class ViewHistory extends Component {
       }
 }
 
-export default ViewHistory as ComponentClass;
+// export default ViewHistory as ComponentClass;
 
+const mapStateToProps = (state) => {
+    return {
+        viewHistory: state.viewHistory
+    }
+};
+export default connect(mapStateToProps)(ViewHistory) as ComponentClass

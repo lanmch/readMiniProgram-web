@@ -5,15 +5,23 @@ import { Component, Config } from '@tarojs/taro'
 import { View, Input, Button, Image } from '@tarojs/components'
 import Banner from '../../components/banner'
 import BookRankItem from '../../components/bookRankItem'
+import { connect } from '@tarojs/redux';
+
+import { getRankList } from '../../actions/rankList';
+import { getBookList } from '../../actions/bookList';
 
 import './index.less'
 
 type PageState = {
     currentTabIndex: number,
     bookList: any,
-    rankTabIndex: number
+    rankTabIndex: number,
+    
 }
 type PageProps = {
+    rankList: any,
+    dispatch: any,
+    bookList: any
 }
 
 
@@ -22,7 +30,9 @@ interface Homepage {
     state: PageState
 }
 
-
+const url = Taro.getApp().global.url;
+const userId =  Taro.getApp().global.userId;
+const bookType = ['文学','校园','实事','儿童']
 class Homepage extends Component {
     
     static defaultProps = {}
@@ -82,19 +92,64 @@ class Homepage extends Component {
     config: Config = {
         navigationBarTitleText: '首页'
     }
-
+    componentDidMount() {
+        this.getRankList(0);
+        this.getBookList(0);
+    }
+    getRankList(rankType) {
+        Taro.request({
+            url: url + '/bookrank',
+            method: 'POST',
+            data: {
+                rankType
+            },
+            header: {
+                'content-type': 'application/json'
+            },
+            success: (res) => {
+                const { dispatch } = this.props;
+                dispatch(getRankList(res.data.data.rankList))
+            }
+        })
+    }
+    getBookList(bookType) {
+        Taro.request({
+            url: url + '/booklist',
+            method: 'POST',
+            data: {
+                bookType
+            },
+            header: {
+                'content-type': 'application/json'
+            },
+            success: (res) => {
+                const { dispatch } = this.props;
+                dispatch(getBookList(res.data.data.bookList))
+            }
+        })
+    }
     handleClickTab(index) {
         this.setState({
             currentTabIndex: index
         })
+        this.getRankList(index);
     }
     handleClickRankTab(index) {
         this.setState({
             rankTabIndex: index
         })
+        this.getBookList(index);
+    }
+    navBook(bookId) {
+        console.log(bookId)
+        Taro.navigateTo({ url: `/pages/bookIntroduce/index?bookId=${bookId}` })
     }
     render () {
-        const { currentTabIndex, bookList, rankTabIndex } = this.state;
+        const { currentTabIndex, rankTabIndex } = this.state;
+        const { rankList, bookList } = this.props;
+        const { list } = rankList;
+        const { booklist } = bookList;
+        if(!list || !booklist) return;
         return (
             <View className='homepage'>
                 <Banner />
@@ -126,30 +181,30 @@ class Homepage extends Component {
                         currentTabIndex == 0 ? 
                         <View className='tab-content'>
 
-                            <View className='first'>
+                            <View className='first' onClick={this.navBook.bind(this, list[0].bookId)}>
                                 <Image
-                                src={bookList[0].img}
+                                src={list[0].img}
                                 className='img'
                                 mode='widthFix'
                                 />
                                 <View className='text'>
                                     <View className='text-top'>
-                                        <View className='title'>{ bookList[0].title }</View>
-                                        <View className='type'>{ bookList[0].type }</View>
+                                        <View className='title'>{ list[0].bookName }</View>
+                                        <View className='type'>{ bookType[list[0].type] }</View>
                                     </View>
-                                    <View className='text-btm'>
-                                        { bookList[0].abstract }
+                                    <View className='text-btm' style={{"WebkitBoxOrient": "vertical", "WebkitLineClamp": 4}}>
+                                        { list[0].bookAbstract }
                                     </View>
                                 </View>
                             </View>
                             <View className='others'>
                                 {
-                                    bookList.map((item, index) => {
+                                    list.map((item, index) => {
                                         return(
                                             index ?
-                                            <View className='others-item' key={index}>
-                                                <View className='type'>{ item.type }</View>
-                                                <View className='title'>{ item.title }</View>
+                                            <View className='others-item' key={index} onClick={this.navBook.bind(this, item.bookId)}>
+                                                <View className='type'>{ bookType[item.type] }</View>
+                                                <View className='title'>{ item.bookName }</View>
                                             </View> : null
                                         )
                                         
@@ -160,30 +215,30 @@ class Homepage extends Component {
                         currentTabIndex == 1 ?
                         <View className='tab-content'>
 
-                            <View className='first'>
+                            <View className='first' onClick={this.navBook.bind(this, list[0].bookId)}>
                                 <Image
-                                src={bookList[0].img}
+                                src={list[0].img}
                                 className='img'
                                 mode='widthFix'
                                 />
                                 <View className='text'>
                                     <View className='text-top'>
-                                        <View className='title'>{ bookList[0].title }</View>
-                                        <View className='type'>{ bookList[0].type }</View>
+                                        <View className='title'>{ list[0].bookName }</View>
+                                        <View className='type'>{ bookType[list[0].type] }</View>
                                     </View>
-                                    <View className='text-btm'>
-                                        { bookList[0].abstract }
+                                    <View className='text-btm' style={{"WebkitBoxOrient": "vertical", "WebkitLineClamp": 4}}>
+                                        { list[0].bookAbstract }
                                     </View>
                                 </View>
                             </View>
                             <View className='others'>
                                 {
-                                    bookList.map((item, index) => {
+                                    list.map((item, index) => {
                                         return(
                                             index ?
-                                            <View className='others-item' key={index}>
-                                                <View className='type'>{ item.type }</View>
-                                                <View className='title'>{ item.title }</View>
+                                            <View className='others-item' key={index} onClick={this.navBook.bind(this, item.bookId)}>
+                                                <View className='type'>{ bookType[item.type] }</View>
+                                                <View className='title'>{ item.bookName }</View>
                                             </View> : null
                                         )
                                         
@@ -194,7 +249,7 @@ class Homepage extends Component {
                         <View className='tab-rank'>
                             <View className='rank-type'>
                                 {
-                                    ['文学', '现代', '都市', '新闻', '技术'].map((item, index) => {
+                                    bookType.map((item, index) => {
                                         return(
                                             <View
                                             className={ rankTabIndex == index ? 'item-choose item' : 'item' }
@@ -209,7 +264,7 @@ class Homepage extends Component {
                             </View>
                             <View className='rank-content'>
                                 {
-                                    bookList.map((item, index) => {
+                                    booklist.map((item, index) => {
                                         return(
                                             <BookRankItem key={index} index={index} bookInfo={item} />
                                         )
@@ -228,5 +283,12 @@ class Homepage extends Component {
       }
 }
 
-export default Homepage as ComponentClass;
+// export default Homepage as ComponentClass;
+const mapStateToProps = (state) => {
+    return {
+        rankList: state.rankList,
+        bookList: state.bookList
+    }
+};
+export default connect(mapStateToProps)(Homepage) as ComponentClass
 

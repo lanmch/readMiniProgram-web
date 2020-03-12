@@ -19,9 +19,14 @@
         .abs{
             color: rgb(56, 56, 56);
             font-size: 26px;
-            margin-top: 15rpx;
-            height: 140rpx;
             margin-top: 20rpx;
+            text-overflow:ellipsis;
+            display: -webkit-box;
+            word-break: break-all;
+            display:-webkit-box;
+            overflow:hidden;
+            -webkit-line-clamp:4;   /*设置要显示省略号的行数*/
+            -webkit-box-orient:vertical;
         }
     }
     .index-top{
